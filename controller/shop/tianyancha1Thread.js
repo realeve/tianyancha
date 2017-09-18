@@ -206,7 +206,7 @@ async function getCompanyListFromProv(province) {
         await recordTaskProgress(province.id, item.ids, company.page, url);
       }
 
-      let sleepTimeLength = (2000 + Math.random() * 1500).toFixed(0);
+      let sleepTimeLength = (5000 + Math.random() * 1500).toFixed(0);
 
       console.log(`idx=${idx},第${i}/${curPage}页数据采集完毕,休息${sleepTimeLength}ms继续\n`);
       await util.sleep(sleepTimeLength);

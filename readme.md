@@ -53,3 +53,5 @@ tianyanchahq.js 此为通过淘宝购买高质量IP列表(1分钟更新10组IP�
 # 反爬虫
 // 将以下信息通过校验即可
 https://antirobot.tianyancha.com/captcha/verify?return_url=https%3A%2F%2Fbj.tianyancha.com%2Fsearch%2Foc49-r0100-e15-s1-la1%2Fp17&rnd=
+
+// http://antirobot.tianyancha.com/captcha/getCaptcha.json
