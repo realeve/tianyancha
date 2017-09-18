@@ -13,13 +13,42 @@ let parser = require('../util/htmlParser');
 let settings = require('../util/urlList.js');
 let sqlParser = require('../util/sqlParser');
 let fs = require('fs');
+let cookie = require('../data/cookie');
 
-// 是否需要存储相应Html文件至本地
-let SAVE_HTML_FILES = false;
+let CONDITION_LIST = [];
 
+let LAST_INFO = {
+  provincesId: 0,
+  queryId: 0,
+  pageId: 0
+}
 async function init() {
+
   // 获取基础信息 await getBaseInfo();
-  await readQuerySetting();
+  CONDITION_LIST = await readQuerySetting();
+
+  let provincelist = await getPorvFromDb();
+
+  let lastTask = await getLastTaskProgress();
+  LAST_INFO.provincesId = parseInt(lastTask.province_id) - 1;
+
+  for (let i = 0; i < CONDITION_LIST.length; i++) {
+    if (lastTask.query_ids == CONDITION_LIST[i].ids) {
+      LAST_INFO.queryId = i;
+      i = CONDITION_LIST.length;
+    }
+  }
+
+  // 读取上次任务取了多少页数据
+  if (LAST_INFO.queryId > 0) {
+    let sql = `SELECT count(*)/20 num FROM companyindex b where url = '${lastTask.url}'`;
+    let data = await query(sql);
+    LAST_INFO.pageId = parseInt(data[0].num);
+  }
+
+  for (let i = LAST_INFO.provincesId; i < provincelist.length; i++) {
+    await getCompanyListFromProv(provincelist[i]);
+  }
 }
 
 // 获取基础数据
@@ -30,6 +59,12 @@ async function getBaseInfo() {
 
   // step2: 获取行业信息
   await getIndustryIndex();
+}
+
+async function getLastTaskProgress() {
+  let sql = 'SELECT * FROM `task_progress` order by id desc limit 1';
+  let data = await query(sql);
+  return data[0];
 }
 
 // 获取查询配置基本信息
@@ -69,26 +104,25 @@ async function readQuerySetting() {
           level++;
 
           data.push({
-            query: item.join('-')+'-la1',
-            ids:ids.join(',')
+            query: item.join('-') + '-la1',
+            ids: ids.join(',')
           });
           item.pop();
           ids.pop();
         });
-        
+
         item.pop();
         ids.pop();
       });
-      
+
       item.pop();
       ids.pop();
     });
-    
+
     item.pop();
     ids.pop();
   });
-  console.log(data);
-
+  return data;
 }
 
 // 获取行业列表
@@ -130,12 +164,92 @@ async function getProvinceIndex() {
 
 // 获取省份列表（从数据库）
 async function getPorvFromDb() {
-  let sql = 'SELECT * from (select a.id,a.province,a.href,(case when b.page=0 then 1 when b.p' +
-      'age is null then 1 else b.page+1 end) curPage,(case when a.pagenum=0 then 2 else' +
-      ' a.pagenum end) totalPage from provinceindex a left JOIN (SELECT province_id,cei' +
-      'l(count(*)/10) page FROM `companyIndex` group by province_id) b on a.id = b.prov' +
-      'ince_id   ) a where a.totalPage>a.curPage';
+  let sql = 'SELECT id,href FROM `provinceindex` where id<9 or (id>9 and province<>city)';
   return await query(sql);
+}
+
+async function getCompanyListFromProv(province) {
+  // 任务开始结点
+  let idx = province.id == LAST_INFO.provincesId + 1
+    ? LAST_INFO.queryId
+    : 0;
+
+  for (; idx < CONDITION_LIST.length; idx++) {
+
+    let item = CONDITION_LIST[idx];
+    let url = province.href + '/' + item.query;
+
+    //自动翻页查询
+    let curPage,
+      i;
+
+    // 从上次结束的位置开始查询
+    if (LAST_INFO.provincesId + 1 == province.id && LAST_INFO.queryId == idx) {
+      i = LAST_INFO.pageId + 1;
+      curPage = i;
+    } else {
+      i = 1;
+      curPage = 1;
+    }
+
+    for (; i <= curPage; i++) {
+      let company = await getCompanyFromUrl(url, curPage);
+      curPage = company.page;
+      // 有数据时存储入库
+      if (company.page > -1) {
+
+        let sql = sqlParser.companyList(company.data, province.id, url)
+        console.log(sql);
+        await query(sql);
+      }
+
+      // 存储任务进度 当无数据返回或
+      if (company.page < 0 || i == 1) {
+        await recordTaskProgress(province.id, item.ids, company.page, url);
+      }
+      console.log(`idx=${idx},${url},第${i}/${curPage}页数据采集完毕`);
+    }
+    console.log(`第${idx}/${CONDITION_LIST.length}页数据采集完毕`);
+  }
+}
+
+// 存储任务进度
+async function recordTaskProgress(id, query_ids, page, url) {
+  let sql = `insert into task_progress(province_id,query_ids,page,url) values(${id},'${query_ids}',${page},'${url}')`;
+  await query(sql);
+}
+
+async function getCompanyFromUrl(url, page) {
+  url = url + '/p' + page;
+  let option = {
+    method: 'get',
+    url,
+    headers: {
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',      
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+      'Upgrade-Insecure-Requests':1,
+      Cookie: cookie.data
+    },
+    timeout: 15000
+  };
+
+  let html = await axios(option)
+    .then(res => res.data)
+    .catch(e => {
+      console.log('数据抓取失败\n' + url);
+      console.log(e.message);
+      return '';
+    });
+
+  if (html.includes('没有找到相关结果')) {
+    return {page: -1};
+  }
+  if (html == '') {
+    return {page: -2};
+  }
+  console.log(url);
+  return parser.companyList(html);
 }
 
 module.exports = {
