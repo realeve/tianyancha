@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50621
 File Encoding         : 65001
 
-Date: 2017-09-18 23:42:06
+Date: 2017-09-19 03:01:53
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -29,8 +29,8 @@ CREATE TABLE `companystatus` (
 -- ----------------------------
 -- Records of companystatus
 -- ----------------------------
-INSERT INTO `companystatus` VALUES ('1', '在业', 'os1');
-INSERT INTO `companystatus` VALUES ('2', '存续', 'os2');
-INSERT INTO `companystatus` VALUES ('3', '吊销', 'os3');
-INSERT INTO `companystatus` VALUES ('4', '注销', 'os4');
-INSERT INTO `companystatus` VALUES ('5', '迁出', 'os5');
+INSERT INTO `companystatus` VALUES ('1', '在业', 's1');
+INSERT INTO `companystatus` VALUES ('2', '存续', 's2');
+INSERT INTO `companystatus` VALUES ('3', '吊销', 's3');
+INSERT INTO `companystatus` VALUES ('4', '注销', 's4');
+INSERT INTO `companystatus` VALUES ('5', '迁出', 's5');

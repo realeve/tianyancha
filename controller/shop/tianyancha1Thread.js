@@ -197,9 +197,7 @@ async function getCompanyListFromProv(province) {
       curPage = company.page;
       // 有数据时存储入库
       if (company.page > -1) {
-
         let sql = sqlParser.companyList(company.data, province.id, url)
-        console.log(sql);
         await query(sql);
       }
 
@@ -207,7 +205,11 @@ async function getCompanyListFromProv(province) {
       if (company.page < 0 || i == 1) {
         await recordTaskProgress(province.id, item.ids, company.page, url);
       }
-      console.log(`idx=${idx},${url},第${i}/${curPage}页数据采集完毕`);
+
+      let sleepTimeLength = (2000 + Math.random() * 1500).toFixed(0);
+
+      console.log(`idx=${idx},第${i}/${curPage}页数据采集完毕,休息${sleepTimeLength}ms继续\n`);
+      await util.sleep(sleepTimeLength);
     }
     console.log(`第${idx}/${CONDITION_LIST.length}页数据采集完毕`);
   }
@@ -225,10 +227,12 @@ async function getCompanyFromUrl(url, page) {
     method: 'get',
     url,
     headers: {
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-      'Accept-Encoding': 'gzip, deflate, br',      
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
-      'Upgrade-Insecure-Requests':1,
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;' +
+          'q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)' +
+          ' Chrome/60.0.3112.113 Safari/537.36',
+      'Upgrade-Insecure-Requests': 1,
       Cookie: cookie.data
     },
     timeout: 15000
@@ -245,6 +249,8 @@ async function getCompanyFromUrl(url, page) {
   if (html.includes('没有找到相关结果')) {
     return {page: -1};
   }
+  // if(html.includes('我们只是确认一下你不是机器人')){   console.log('机器人校验');   return {
+  // page:-2   } }
   if (html == '') {
     return {page: -2};
   }
