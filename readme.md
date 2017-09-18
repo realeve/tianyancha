@@ -48,3 +48,8 @@ tianyanchahq.js 此为通过淘宝购买高质量IP列表(1分钟更新10组IP�
 2. 根据省份信息爬取企业名录; 
 
 3. 根据企业名录获取详情信息
+
+
+# 反爬虫
+// 将以下信息通过校验即可
+https://antirobot.tianyancha.com/captcha/verify?return_url=https%3A%2F%2Fbj.tianyancha.com%2Fsearch%2Foc49-r0100-e15-s1-la1%2Fp17&rnd=
