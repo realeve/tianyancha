@@ -200,8 +200,10 @@ async function getCompanyListFromProv(province) {
 
         for (; i <= curPage; i++) {
             let company = await getCompanyFromUrl(url, i);
-            curPage = company.page;
-            if (curPage == -3) {
+            if (i == 1 || company.page > 0) {
+                curPage = company.page;
+            }
+            if (company.page == -3) {
                 console.log('采集停止');
                 i = curPage + 1;
                 idx = CONDITION_LIST.length + 1;
@@ -209,7 +211,7 @@ async function getCompanyListFromProv(province) {
             }
 
             // 有数据时存储入库
-            if (curPage > -1) {
+            if (company.page > -1) {
                 let sql = sqlParser.companyList(company.data, {
                     province_id: province.id,
                     ids: item.ids
@@ -219,8 +221,8 @@ async function getCompanyListFromProv(province) {
             }
 
             // 存储任务进度 当无数据返回或
-            if (curPage < 0 || i == 1) {
-                await recordTaskProgress(province.id, item.ids, curPage, url);
+            if (company.page < 0 || i == 1) {
+                await recordTaskProgress(province.id, item.ids, company.page, url);
             }
 
             // let sleepTimeLength = (5000 + Math.random() * 1500).toFixed(0);
