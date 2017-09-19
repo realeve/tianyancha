@@ -108,7 +108,7 @@ function parseHTML(options) {
 
 // 程序主目录
 function getMainContent() {
-    let PROGRAM_NAME = 'qichacha';
+    let PROGRAM_NAME = 'tianyancha';
     let str = process.cwd().split(PROGRAM_NAME)[0] + PROGRAM_NAME;
     return str.replace(/\\/g, '/');
 }
