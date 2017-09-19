@@ -30,9 +30,11 @@ async function init() {
     let provincelist = await getPorvFromDb();
 
     let lastTask = await getLastTaskProgress();
-    LAST_INFO.provincesId = parseInt(lastTask.province_id) - 1;
+    if (typeof lastTask != 'undefined') {
+        LAST_INFO.provincesId = parseInt(lastTask.province_id) - 1;
+    }
 
-    for (let i = 0; i < CONDITION_LIST.length; i++) {
+    for (let i = 0; typeof lastTask != 'undefined' && i < CONDITION_LIST.length; i++) {
         if (lastTask.query_ids == CONDITION_LIST[i].ids) {
             LAST_INFO.queryId = i;
             i = CONDITION_LIST.length;
@@ -73,7 +75,7 @@ async function getLastTaskProgress() {
 
 // 获取查询配置基本信息
 async function readQuerySetting() {
-    let sql = 'select * from capitalindex';
+    let sql = 'select * from capitalindex where id>1';
     let regCaptial = await query(sql);
     sql = 'select * from companystatus where id <3';
     let companyStatus = await query(sql);
@@ -197,7 +199,7 @@ async function getCompanyListFromProv(province) {
         }
 
         for (; i <= curPage; i++) {
-            let company = await getCompanyFromUrl(url, curPage);
+            let company = await getCompanyFromUrl(url, i);
             curPage = company.page;
             if (curPage == -3) {
                 console.log('采集停止');
@@ -208,7 +210,11 @@ async function getCompanyListFromProv(province) {
 
             // 有数据时存储入库
             if (curPage > -1) {
-                let sql = sqlParser.companyList(company.data, province.id, url)
+                let sql = sqlParser.companyList(company.data, {
+                    province_id: province.id,
+                    ids: item.ids
+                }, url);
+
                 await query(sql);
             }
 

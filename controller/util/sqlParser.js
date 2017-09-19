@@ -1,11 +1,11 @@
 let getNow = require('./common').getNow
-// 本模块用于一次性插入大量数据时对原始数据的处理 销售记录详情数据
+    // 本模块用于一次性插入大量数据时对原始数据的处理 销售记录详情数据
 
-function companyList(companys, provinceId,url) {
+function companyList(companys, province, url) {
     let sql = 'insert into companyIndex(province_id,company_name,href,company_status,leader,reg' +
-            '_date,reg_captial,score,status,url) values ';
+        '_date,reg_captial,score,status,industry_id,captial_id,regtime_id,companystatus_id,url) values ';
     let sqlValues = companys.map(item => {
-        return `(${provinceId},'${item.company_name}','${item.href}','${item.company_status}','${item.leader}','${item.reg_date}','${item.reg_captial}','${item.score}',0,'${url}')`;
+        return `(${province.province_id},'${item.company_name}','${item.href}','${item.company_status}','${item.leader}','${item.reg_date}','${item.reg_captial}','${item.score}',0,${province.ids},'${url}')`;
     })
     return sql + sqlValues.join(',');
 }
@@ -21,7 +21,7 @@ function companyList(companys, provinceId,url) {
 // }
 
 
-module.exports = {    
+module.exports = {
     companyList,
     // companyDetail
 }
