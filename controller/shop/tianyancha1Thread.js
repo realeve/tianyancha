@@ -14,7 +14,7 @@ let settings = require('../util/urlList.js');
 let sqlParser = require('../util/sqlParser');
 let login = require('./login');
 
-let cookie;
+let cookie = require('../data/cookie');
 
 let CONDITION_LIST = [];
 
@@ -27,7 +27,7 @@ async function init() {
 
   // 获取基础信息 await getBaseInfo();
 
-  cookie = await login();
+  // cookie = await login();
 
   await spiderData();
 
@@ -263,7 +263,7 @@ async function getCompanyFromUrl(url, page) {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)' +
           ' Chrome/60.0.3112.113 Safari/537.36',
       'Upgrade-Insecure-Requests': 1,
-      Cookie: cookie
+      Cookie: cookie.data
     },
     timeout: 15000
   };

@@ -37,6 +37,7 @@ async function login() {
             .join(';');
         // let fileName = util.getMainContent() + '/controller/data/cookies.json';
         // fs.writeFileSync(fileName, JSON.stringify({cookie}), 'utf8');
+        // 此处应加入cookie中其它字段的处理，因时间关系，该部分暂时不做
         return cookie;
     }).catch(e => {
         console.log(e.message);
