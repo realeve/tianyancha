@@ -51,3 +51,4 @@ node_modules
 
 /controller/data
 mailAuth.js
+loginSetting.js
