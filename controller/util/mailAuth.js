@@ -1,6 +1,6 @@
 module.exports = {
     auth: {
-        user: 'realeve@qq.com',
-        pass: 'even18741984'
+        user: '12345678@qq.com',
+        pass: '12345678'
     }
 }
