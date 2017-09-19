@@ -5,7 +5,7 @@ function companyList(companys, province, url) {
     let sql = 'insert into companyIndex(province_id,company_name,href,company_status,leader,reg' +
         '_date,reg_captial,score,status,industry_id,captial_id,regtime_id,companystatus_id,url) values ';
     let sqlValues = companys.map(item => {
-        return `(${province.province_id},'${item.company_name}','${item.href}','${item.company_status}','${item.leader}','${item.reg_date}','${item.reg_captial}','${item.score}',0,${province.ids},'${url}')`;
+        return `(${province.province_id},'${item.company_name.replace(/\'/g,'\\\'')}','${item.href}','${item.company_status}','${item.leader.replace(/\'/g,'\\\'')}','${item.reg_date}','${item.reg_captial}','${item.score}',0,${province.ids},'${url}')`;
     })
     return sql + sqlValues.join(',');
 }
