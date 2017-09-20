@@ -12,7 +12,8 @@ let parser = require('../util/htmlParser');
 
 let settings = require('../util/urlList.js');
 let sqlParser = require('../util/sqlParser');
-let fs = require('fs');
+let login = require('./login');
+
 let cookie = require('../data/cookie');
 
 let CONDITION_LIST = [];
@@ -25,6 +26,15 @@ let LAST_INFO = {
 async function init() {
 
     // 获取基础信息 await getBaseInfo();
+
+    // cookie = await login();
+
+    await spiderData();
+
+}
+
+async function spiderData() {
+
     CONDITION_LIST = await readQuerySetting();
 
     let provincelist = await getPorvFromDb();
@@ -226,7 +236,6 @@ async function getCompanyListFromProv(province) {
             }
 
             // let sleepTimeLength = (5000 + Math.random() * 1500).toFixed(0);
-
             // console.log(`idx=${idx},第${i}/${curPage}页数据采集完毕,休息${sleepTimeLength}ms继续\n`);
             // await util.sleep(sleepTimeLength);
 
@@ -266,6 +275,7 @@ async function getCompanyFromUrl(url, page) {
             console.log(e.message);
             return '';
         });
+
 
     console.log(url);
     if (html.includes('没有找到相关结果')) {
