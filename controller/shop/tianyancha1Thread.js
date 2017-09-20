@@ -276,6 +276,11 @@ async function getCompanyFromUrl(url, page) {
         return {
             page: -3
         }
+    } else if (html.includes('你已在其他地点登录')) {
+        console.log('你已在其他地点登录');
+        return {
+            page: -3
+        }
     }
     if (html == '') {
         return { page: -2 };
