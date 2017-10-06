@@ -180,7 +180,8 @@ async function getProvinceIndex() {
 
 // 获取省份列表（从数据库）
 async function getPorvFromDb() {
-    let sql = 'SELECT id,href FROM `provinceindex` where id<9 or (id>9 and province<>city)';
+    // let sql = 'SELECT id,href FROM `provinceindex` where id<9 or (id>9 and province<>city)';
+    let sql = 'SELECT id,href FROM `provinceindex` where id=5';
     return await query(sql);
 }
 
