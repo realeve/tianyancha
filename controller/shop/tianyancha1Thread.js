@@ -41,7 +41,7 @@ async function spiderData() {
 
     let lastTask = await getLastTaskProgress();
     if (typeof lastTask != 'undefined') {
-        LAST_INFO.provincesId = parseInt(lastTask.province_id) - 1;
+        LAST_INFO.provincesId = parseInt(lastTask.province_id)- 1;
     }
 
     for (let i = 0; typeof lastTask != 'undefined' && i < CONDITION_LIST.length; i++) {
@@ -58,7 +58,8 @@ async function spiderData() {
         LAST_INFO.pageId = parseInt(data[0].num);
     }
 
-    for (let i = LAST_INFO.provincesId; i < provincelist.length; i++) {
+    //for (let i = LAST_INFO.provincesId; i < provincelist.length; i++) {
+    for (let i = 0; i < provincelist.length; i++) {
         let noerror = await getCompanyListFromProv(provincelist[i]);
         if (!noerror) {
             i = provincelist.length + 1;
