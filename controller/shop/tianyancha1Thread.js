@@ -293,7 +293,13 @@ async function getCompanyFromUrl(url, page) {
         return {
             page: -3
         }
+    } else if (html.includes('系统检测到您非人类行为')) {
+        console.log('系统检测到您非人类行为,等待1分钟再试。');
+        return {
+            page: -3
+        }
     }
+
     if (html == '') {
         return { page: -2 };
     }
