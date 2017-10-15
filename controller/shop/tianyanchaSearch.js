@@ -28,10 +28,14 @@ async function init() {
     await spiderData();
 }
 
-async function spiderData() {
+async function getCompanyList(){    
+    let sql = 'SELECT id,title FROM `company_index` where status = 0 limit 200';
+    return await query(sql);
+}
 
-    let sql = 'SELECT id,title FROM `company_index` where status = 0 limit 1000';
-    let companyList = await query(sql);
+async function spiderData() {
+    
+    let companyList = await getCompanyList();
     let length = companyList.length;
 
     for (let i = 0; i < length; i++) {
@@ -39,8 +43,12 @@ async function spiderData() {
         let noerror = await searchCompany(companyList[i]);
 
         if (!noerror) {
-            i = length + 1;
-            break;
+            i = -1;
+            // 重新获取公司列表，并暂停一分钟继续取数据
+            companyList = await getCompanyList();
+            length = companyList.length;
+            console.log('等待10s后重试');
+            await util.sleep(10*1000);
         }
     }
     console.log('爬虫停止');
@@ -99,7 +107,7 @@ async function getDetail(company) {
 
     if (html.includes('没有找到相关结果')) {
         console.log(`未搜索到 ${company.title} 相关信息`)
-        console.log('url:', url);
+        // console.log('url:', url);
         await recordDataStatus(company.id, -1);
         return 0;
     }
