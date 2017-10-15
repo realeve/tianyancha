@@ -108,7 +108,7 @@ let companyList = html => {
     return {data, page, counts, curPage}
 }
 
-let companyDetail = (html,cid) => {
+let companyDetail = (html, cid) => {
     let $ = cheerio.load(html);
     let dom = $('.search_right_item').eq(0);
     let detail = $('.search_row_new')
@@ -146,8 +146,39 @@ let companyDetail = (html,cid) => {
     return option;
 }
 
+let companyIndustry = html => {
+    let $ = cheerio.load(html);
+    let dom = $('#_container_baseInfo tbody')
+        .eq(1)
+        .find('tr');
+    let option = {
+        industry: dom
+            .eq(2)
+            .find('td')
+            .eq(3)
+            .text(),
+        reg_org: dom
+            .eq(4)
+            .find('td')
+            .eq(1)
+            .text(),
+        address: dom
+            .eq(4)
+            .find('td')
+            .eq(3)
+            .text(),
+        business_scope: dom
+            .eq(6)
+            .find('td')
+            .eq(1)
+            .text()
+    }
+    return option;
+}
+
 module.exports = {
     mainList,
     companyList,
-    companyDetail
+    companyDetail,
+    companyIndustry
 }
