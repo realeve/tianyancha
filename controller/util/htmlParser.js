@@ -5,26 +5,28 @@ let cheerio = require('cheerio')
 let mainList = (html, type = 'bace') => {
     let options = {
         html,
-        parentNode: `.${type}_box` + (type == 'bace' ?
-            ` .${type}` :
-            ''),
-        children: [{
-            node: 'a',
-            name: 'data',
-            formatter(el) {
-                let arrs = [];
-                for (let i = 0; i < el.length; i++) {
-                    let dom = el.eq(i);
-                    arrs.push({
-                        href: dom.attr('href'),
-                        sub: dom
-                            .text()
-                            .replace('•', '')
-                    })
+        parentNode: `.${type}_box` + (type == 'bace'
+            ? ` .${type}`
+            : ''),
+        children: [
+            {
+                node: 'a',
+                name: 'data',
+                formatter(el) {
+                    let arrs = [];
+                    for (let i = 0; i < el.length; i++) {
+                        let dom = el.eq(i);
+                        arrs.push({
+                            href: dom.attr('href'),
+                            sub: dom
+                                .text()
+                                .replace('•', '')
+                        })
+                    }
+                    return arrs
                 }
-                return arrs
             }
-        }]
+        ]
     }
     let result = util.parseHTML(options);
     let data = [];
@@ -43,9 +45,9 @@ let companyList = html => {
     let $ = cheerio.load(html);
     let counts = $('.new-err').text();
     let page = $('.total').text();
-    page = page == '' ?
-        1 :
-        page.match(/(\d+)/)[0];
+    page = page == ''
+        ? 1
+        : page.match(/(\d+)/)[0];
     let curPage = $('.active')
         .eq(1)
         .text();
@@ -53,45 +55,42 @@ let companyList = html => {
     let options = {
         html,
         parentNode: '.search_result_single',
-        children: [{
-            node: 'a',
-            name: 'company_name'
-        }, {
-            node: 'a',
-            name: 'href',
-            formatter(el) {
-                return el.attr('href');
-            }
-        }, {
-            node: '.statusTypeNor',
-            name: 'company_status'
-        }, {
-            node: '.c9.f20',
-            name: 'score',
-            // formatter(el) {
-            //     let text = el
-            //         .eq(0)
-            //         .text()
-            //         .replace('评分', '');
-            //     return text;
-            // }
-        }, {
-            node: '.search_row_new span',
-            name: 'detail',
-            formatter(el) {
-                return {
-                    leader: el
-                        .eq(0)
-                        .text(),
-                    reg_captial: el
-                        .eq(1)
-                        .text(),
-                    reg_date: el
-                        .eq(2)
-                        .text()
+        children: [
+            {
+                node: 'a',
+                name: 'company_name'
+            }, {
+                node: 'a',
+                name: 'href',
+                formatter(el) {
+                    return el.attr('href');
+                }
+            }, {
+                node: '.statusTypeNor',
+                name: 'company_status'
+            }, {
+                node: '.c9.f20',
+                name: 'score',
+                // formatter(el) {     let text = el         .eq(0)         .text()
+                // .replace('评分', '');     return text; }
+            }, {
+                node: '.search_row_new span',
+                name: 'detail',
+                formatter(el) {
+                    return {
+                        leader: el
+                            .eq(0)
+                            .text(),
+                        reg_captial: el
+                            .eq(1)
+                            .text(),
+                        reg_date: el
+                            .eq(2)
+                            .text()
+                    }
                 }
             }
-        }]
+        ]
     }
 
     let result = util.parseHTML(options);
@@ -106,10 +105,49 @@ let companyList = html => {
             reg_date: item.detail.reg_date
         }
     })
-    return { data, page, counts, curPage }
+    return {data, page, counts, curPage}
+}
+
+let companyDetail = (html,cid) => {
+    let $ = cheerio.load(html);
+    let dom = $('.search_right_item').eq(0);
+    let detail = $('.search_row_new')
+        .eq(0)
+        .find('span');
+    let option = {
+        cid,
+        company_name: dom
+            .find('a')
+            .eq(0)
+            .text(),
+        href: dom
+            .find('a')
+            .eq(0)
+            .attr('href'),
+        company_status: dom
+            .find('.statusTypeNor')
+            .text(),
+        leader: dom
+            .find('.legalPersonName')
+            .text(),
+        reg_captial: detail
+            .eq(0)
+            .text(),
+        reg_date: detail
+            .eq(1)
+            .text(),
+        province: detail
+            .eq(2)
+            .text(),
+        score: detail
+            .eq(3)
+            .text()
+    }
+    return option;
 }
 
 module.exports = {
     mainList,
-    companyList
+    companyList,
+    companyDetail
 }

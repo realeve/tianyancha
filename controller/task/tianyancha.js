@@ -6,13 +6,17 @@ let tbproxyCrawler = require('../shop/tianyanchahq');
 
 let localRead = require('../shop/tianyancha1Thread');
 
+let search = require('../shop/tianyanchaSearch');
+
 async function init() {
     
     // read.init();
     
-    localRead.init();
+    // localRead.init();
     
     // tbproxyCrawler.init();
+
+    search.init();
 }
 
 module.exports = {
