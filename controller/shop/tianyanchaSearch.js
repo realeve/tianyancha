@@ -25,9 +25,9 @@ let LAST_INFO = {
 }
 async function init() {
 
-    await spiderData();
+    // await spiderData();
 
-    // await updateCompanyDetail();
+    await updateCompanyDetail();
 }
 
 async function getDetailList() {
@@ -52,6 +52,10 @@ async function updateCompanyDetail() {
             console.log('等待10s后重试');
             await util.sleep(10 * 1000);
         }
+        
+        // let time = parseInt(Math.random() * 10 * 1000);
+        // console.log('等待' + time / 1000 + '秒后继续取数据');
+        // await util.sleep(time);
     }
     console.log('爬虫任务全部完成');
 }
@@ -64,7 +68,7 @@ async function setDetailInfo(company) {
         return true;
     }
 
-    let sql = `update company_detail_index set industry='${data.industry}',reg_org = '${data.reg_org}',address='${data.address}',business_scope='${data.business_scope}' where id = ${company.id}`
+    let sql = `update company_detail_index set industry='${data.industry}',reg_org = '${data.reg_org}',address='${data.address.replace(/'/g,' ')}',business_scope='${data.business_scope.replace(/'/g,' ')}' where id = ${company.id}`
     await query(sql);
     return true;
 }
@@ -163,7 +167,18 @@ async function searchCompany(company) {
         return true;
     }
 
-    let sql = `insert into company_detail_index(province,company_name,href,company_status,leader,reg_date,reg_captial,score,cid) values('${data.province}','${data.company_name}','${data.href}','${data.company_status}','${data.leader}','${data.reg_date}','${data.reg_captial}','${data.score}',${data.cid})`
+    let sql = `insert into company_detail_index(province,company_name,href,company_status,leader,reg_date,reg_captial,score,cid) values('${data
+        .province}','${data
+        .company_name
+        .replace("'", ' ')}','${data
+        .href}','${data
+        .company_status}','${data
+        .leader
+        .replace("'", ' ')}','${data
+        .reg_date}','${data
+        .reg_captial}','${data
+        .score}',${data
+        .cid})`
     await query(sql);
     await recordDataStatus(company.id, 1);
     return true;
