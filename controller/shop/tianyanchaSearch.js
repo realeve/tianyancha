@@ -93,9 +93,13 @@ async function getDetailInfo(company) {
 
     let html = await axios(option)
         .then(res => res.data)
-        .catch(e => {
+        .catch(async e => {
             console.log('数据抓取失败\n' + url);
             console.log(e.message);
+            if(e.message.includes('code 404')){
+                let sql = `update company_detail_index set industry='-1' where id = ${company.id}`
+                await query(sql);
+            }
             return '';
         });
 
